@@ -1,10 +1,48 @@
-# Virtual environment
-venv/
-
-# Python cache
+# ===============================
+# Python
+# ===============================
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
 
-# Env files
+# ===============================
+# Virtual Environments
+# ===============================
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# ===============================
+# Environment Variables
+# ===============================
 .env
-# hello
+.env.*
+
+# ===============================
+# Flask
+# ===============================
+instance/
+*.log
+
+# ===============================
+# OS / Editor files
+# ===============================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===============================
+# Node / Chrome Extension (future-safe)
+# ===============================
+node_modules/
+dist/
+build/
+
+# ===============================
+# Model / Cache (HuggingFace)
+# ===============================
+.cache/
+huggingface/
