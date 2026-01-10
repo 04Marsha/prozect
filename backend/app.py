@@ -3,8 +3,15 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 
 # Initialised Flask app --TODO
+from flask import Flask, request, jsonify
 
+app = Flask(__name__)
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "message": "YouTube Transcript Summarizer Backend is running"
+    })
 
 
 # Loaded T5 tokenizer and model
@@ -16,6 +23,15 @@ model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME);
 
 
 # Extract YT video ID  TODO
+@app.route("/summarize", methods=["POST"])
+def summarize():
+    data = request.get_json()
+    video_id = data.get("videoId")
+
+    return jsonify({
+        "videoId": video_id,
+        "summary": "Summary will be generated here"
+    })
 
 
 
@@ -57,3 +73,5 @@ def transcript_summarizer(transcript_text: str) -> str:
 
 
 # Run Flask Application TODO
+if __name__ == "__main__":
+    app.run(debug=True)
