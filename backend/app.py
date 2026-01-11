@@ -1,11 +1,13 @@
 from transformers import T5Tokenizer, T5ForConditionalGeneration
-
-
-
-# Initialised Flask app --TODO
+from youtube_transcript_api import YouTubeTranscriptApi
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
+
+# Flask app initialisation
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -15,28 +17,28 @@ def home():
 
 
 # Loaded T5 tokenizer and model
-
 MODEL_NAME = "t5-small"
 tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME);
 model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME);
 
 
 
-# Extract YT video ID  TODO
-@app.route("/summarize", methods=["POST"])
-def summarize():
-    data = request.get_json()
-    video_id = data.get("videoId")
+# Extract YT video ID 
+def get_transcript(video_id: str) -> str:
+    api = YouTubeTranscriptApi()
+    transcript_list = api.list(video_id)
 
-    return jsonify({
-        "videoId": video_id,
-        "summary": "Summary will be generated here"
-    })
+    try:
+        transcript = transcript_list.find_manually_created_transcript(['en'])
+    except:
+        transcript = transcript_list.find_generated_transcript(['en'])
+
+    transcript_data = transcript.fetch()
+    return " ".join(item.text for item in transcript_data)
 
 
 
 # Transcript Summarizer
-
 def transcript_summarizer(transcript_text: str) -> str:
     
     if not transcript_text or not transcript_text.strip():  
@@ -68,10 +70,24 @@ def transcript_summarizer(transcript_text: str) -> str:
 
 
 
-# REST API Endpoint TODO
+@app.route("/api/summarize", methods=["POST"])
+def summarize_api():
+    data = request.get_json()
+    video_id = data.get("videoId")
+
+    if not video_id:
+        return jsonify({"error": "videoId is required"}), 400
+
+    transcript = get_transcript(video_id)
+    summary = transcript_summarizer(transcript)
+
+    return jsonify({
+        "videoId": video_id,
+        "summary": summary
+    })
 
 
 
-# Run Flask Application TODO
+# Run Flask Application
 if __name__ == "__main__":
     app.run(debug=True)
