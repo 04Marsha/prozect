@@ -8,6 +8,6 @@
     "default_popup": "popup.html"
   },
 
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab","scripting","http://127.0.0.1:5000/"],
   "host_permissions": ["http://127.0.0.1:5000/*"]
 }
