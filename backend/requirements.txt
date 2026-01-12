@@ -1,6 +1,5 @@
-Flask
-youtube-transcript-api
+flask
+flask-cors
 transformers
 torch
-sentencepiece
-flask_cors
+youtube-transcript-api

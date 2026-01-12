@@ -1,5 +1,5 @@
 from transformers import T5Tokenizer, T5ForConditionalGeneration
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -25,16 +25,19 @@ model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME);
 
 # Extract YT video ID 
 def get_transcript(video_id: str) -> str:
-    api = YouTubeTranscriptApi()
-    transcript_list = api.list(video_id)
-
     try:
-        transcript = transcript_list.find_manually_created_transcript(['en'])
-    except:
-        transcript = transcript_list.find_generated_transcript(['en'])
+        transcript_data = YouTubeTranscriptApi.get_transcript(video_id)
+        return " ".join(item["text"] for item in transcript_data)
 
-    transcript_data = transcript.fetch()
-    return " ".join(item.text for item in transcript_data)
+    except TranscriptsDisabled:
+        raise Exception("Transcripts are disabled for this video")
+
+    except NoTranscriptFound:
+        raise Exception("No transcript found for this video")
+
+    except Exception as e:
+        raise Exception(str(e))
+
 
 
 
@@ -78,8 +81,14 @@ def summarize_api():
     if not video_id:
         return jsonify({"error": "videoId is required"}), 400
 
-    transcript = get_transcript(video_id)
-    summary = transcript_summarizer(transcript)
+    try:
+        transcript = get_transcript(video_id)
+        summary = transcript_summarizer(transcript)
+    except Exception as e:
+        return jsonify({
+            "error": "Transcript not available",
+            "details": str(e)
+        }), 400
 
     return jsonify({
         "videoId": video_id,
@@ -90,4 +99,4 @@ def summarize_api():
 
 # Run Flask Application
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
