@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const [tab] = await chrome.tabs.query({
         active: true,
-        currentWindow: true
+        currentWindow: true,
       });
 
       if (!tab?.url || !tab.url.includes("youtube.com/watch")) {
@@ -32,13 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       statusDiv.textContent = "Generating summary (this may take time)...";
 
-      const response = await fetch("http://127.0.0.1:5000/api/summarize", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+      const response = await fetch(
+        "https://ysummariser.onrender.com/api/summarize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ videoId }),
         },
-        body: JSON.stringify({ videoId })
-      });
+      );
 
       const data = await response.json();
 
@@ -49,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       statusDiv.textContent = "Summary ready:";
       summaryDiv.textContent = data.summary;
-
     } catch (err) {
       console.error(err);
       statusDiv.textContent = "Error connecting to backend.";
