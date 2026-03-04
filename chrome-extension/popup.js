@@ -1,10 +1,8 @@
-// extension logic
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("summarizeBtn");
   const statusDiv = document.getElementById("status");
   const summaryDiv = document.getElementById("summary");
 
-  // Safety check (prevents silent crashes)
   if (!btn || !statusDiv || !summaryDiv) {
     console.error("Popup elements not found. Check popup.html IDs.");
     return;
